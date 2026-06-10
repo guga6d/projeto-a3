@@ -133,11 +133,11 @@ class Application(ctk.CTk):
         self._swap_view(view)
 
     def show_partial_results(self):
-        top_results = self.controller.get_top_results()
+        partial_results = self.controller.get_partial_results()
 
         view = PartialResultsView(
             self.container,
-            top_results=top_results,
+            partial_results=partial_results,
             on_vote_again=self.show_primary_question,
             on_finish=self.handle_finish_session,
             resolve_destination_meta=self.controller.get_destination_meta,
@@ -147,7 +147,7 @@ class Application(ctk.CTk):
     def show_winner(self):
         view = WinnerView(
             self.container,
-            winner=self._winner_payload,
+            winners=self._winner_payload,
             on_restart=self.handle_restart,
             resolve_destination_meta=self.controller.get_destination_meta,
         )
@@ -202,12 +202,8 @@ class Application(ctk.CTk):
         self.show_partial_results()
 
     def handle_finish_session(self):
-        top_results = self.controller.get_top_results()
-
-        if top_results:
-            self._winner_payload = top_results[0]
-        else:
-            self._winner_payload = None
+        winning_results = self.controller.get_winning_results()
+        self._winner_payload = winning_results or None
 
         self._safe_call(self.controller.finish_session)
 

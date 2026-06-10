@@ -49,7 +49,7 @@ A janela **"Descubra sua viagem dos sonhos"** será aberta.
 2. **Perguntas** — responda duas perguntas sobre estilo de viagem e companhia.
 3. **Destinos** — escolha o destino preferido entre as opções sugeridas.
 4. **Resultados parciais** — veja o ranking atual e vote novamente ou encerre a sessão.
-5. **Vencedor** — exibe o destino mais votado ao final da sessão.
+5. **Vencedor** — exibe o destino mais votado ao final da sessão ou, em caso de empate, apenas os destinos empatados.
 
 ## Estrutura do projeto
 

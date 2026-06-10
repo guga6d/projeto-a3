@@ -28,12 +28,7 @@ class VoteService:
 
         return self.vote_repository.read_session_results(session.name)
 
-    #Aqui pegamos a sessao e organizamos em uma lista do maior pro menor, pegando somente os 3 maiores, caso n tenha votos ainda, devolve uma lista vazia, depois no enumerate adicionamos as pos de cada um(visto que o sorted ja deixou na ordem)
-    def get_top_results(self):
-        session = self.session_service.get_active_session()
-
-        results = self.vote_repository.read_session_results(session.name)
-
+    def _build_ranked_results(self, results: dict[str, int]):
         total_votes = sum(results.values())
 
         if total_votes == 0:
@@ -41,27 +36,49 @@ class VoteService:
 
         sorted_votes = sorted(
             results.items(),
-            key=lambda item : item[1],
-            reverse=True
-            )
+            key=lambda item: (-item[1], item[0]),
+        )
 
-        top_three = sorted_votes[:3]
+        ranked_results = []
 
-        top_results = []
-
-        #enumerate serve para adicionar o n da pos de cada destination
-        for position, item in enumerate(top_three, start=1):
-            destination = item[0]
-            votes = item[1]
-
-            #round pega os numeros e "formata", alem de arredondar
+        for position, (destination, votes) in enumerate(sorted_votes, start=1):
             percentage = round((votes / total_votes) * 100, 1)
 
-            top_results.append({
+            ranked_results.append({
                 "position": position,
                 "destination": destination,
                 "votes": votes,
-                "percentage": percentage
+                "percentage": percentage,
             })
 
-        return top_results
+        return ranked_results
+
+    # Devolve o ranking completo dos destinos que já receberam ao menos um voto.
+    def get_partial_results(self):
+        session = self.session_service.get_active_session()
+
+        results = self.vote_repository.read_session_results(session.name)
+        ranked_results = self._build_ranked_results(results)
+
+        return [
+            result
+            for result in ranked_results
+            if result["votes"] > 0
+        ]
+
+    def get_winning_results(self):
+        session = self.session_service.get_active_session()
+
+        results = self.vote_repository.read_session_results(session.name)
+        ranked_results = self._build_ranked_results(results)
+
+        if not ranked_results:
+            return []
+
+        highest_vote_total = ranked_results[0]["votes"]
+
+        return [
+            result
+            for result in ranked_results
+            if result["votes"] == highest_vote_total
+        ]

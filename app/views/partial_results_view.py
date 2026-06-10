@@ -8,28 +8,33 @@ from app.views.components.result_card import ResultCard
 
 # Tela de resultado parcial mostrada depois que o usuário vota.
 class PartialResultsView(ctk.CTkFrame):
-    STACK_BREAKPOINT = 900
+    SINGLE_COLUMN_BREAKPOINT = 760
+    TWO_COLUMN_BREAKPOINT = 1180
+    MAX_COLUMNS = 3
 
-    def __init__(self, master, top_results: list[dict], on_vote_again, on_finish,
+    def __init__(self, master, partial_results: list[dict], on_vote_again, on_finish,
                  resolve_destination_meta=None):
         super().__init__(master, fg_color=ui_theme.BACKGROUND_COLOR)
 
-        self.top_results = top_results
+        self.partial_results = partial_results
         self.on_vote_again = on_vote_again
         self.on_finish = on_finish
         self.resolve_destination_meta = resolve_destination_meta
 
         self.cards: list[ResultCard] = []
-        self._stacked: bool | None = None
+        self._columns: int | None = None
 
         self.grid_columnconfigure(0, weight=1)
-        self.grid_rowconfigure(2, weight=1)
+        self.grid_rowconfigure(1, weight=1)
 
         self._build_header()
         self._build_cards()
         self._build_footer()
 
         self.bind("<Configure>", self._on_resize)
+
+    def _format_vote_count(self, votes: int) -> str:
+        return f"{votes} voto" if votes == 1 else f"{votes} votos"
 
     def _build_header(self):
         header = ctk.CTkFrame(self, fg_color="transparent")
@@ -62,12 +67,16 @@ class PartialResultsView(ctk.CTkFrame):
         subtitle.grid(row=1, column=0, pady=(8, 0))
 
     def _build_cards(self):
-        self.cards_frame = ctk.CTkFrame(self, fg_color="transparent")
-        self.cards_frame.grid(row=1, column=0, sticky="n", padx=30, pady=(24, 0))
+        self.cards_frame = ctk.CTkScrollableFrame(self, fg_color="transparent")
+        self.cards_frame.grid(row=1, column=0, sticky="nsew", padx=30, pady=(24, 0))
+        self.cards_frame.grid_columnconfigure(0, weight=1)
 
-        if not self.top_results:
+        self.cards_grid = ctk.CTkFrame(self.cards_frame, fg_color="transparent")
+        self.cards_grid.grid(row=0, column=0, pady=0)
+
+        if not self.partial_results:
             empty_label = ctk.CTkLabel(
-                self.cards_frame,
+                self.cards_grid,
                 text="Ainda não há votos suficientes para exibir o resultado.",
                 font=ui_theme.FONT_BODY,
                 text_color=ui_theme.TEXT_MUTED,
@@ -75,45 +84,50 @@ class PartialResultsView(ctk.CTkFrame):
             empty_label.grid(row=0, column=0, padx=20, pady=40)
             return
 
-        for entry in self.top_results:
+        for entry in self.partial_results:
             destination = entry["destination"]
             votes = entry["votes"]
 
             meta = self.resolve_destination_meta(destination) if self.resolve_destination_meta else {}
 
             card = ResultCard(
-                self.cards_frame,
+                self.cards_grid,
                 destination=destination,
-                votes_text=f"{votes} votos",
+                votes_text=self._format_vote_count(votes),
                 image_path=meta.get("image"),
             )
             self.cards.append(card)
 
-        self._layout_cards(stacked=False)
+        self._layout_cards(self.MAX_COLUMNS)
 
-    def _layout_cards(self, stacked: bool):
-        if self._stacked == stacked:
+    def _resolve_columns(self, width: int) -> int:
+        if width < self.SINGLE_COLUMN_BREAKPOINT:
+            return 1
+
+        if width < self.TWO_COLUMN_BREAKPOINT:
+            return 2
+
+        return self.MAX_COLUMNS
+
+    def _layout_cards(self, columns: int):
+        if self._columns == columns:
             return
 
-        self._stacked = stacked
+        self._columns = columns
 
-        for child in self.cards_frame.winfo_children():
+        for child in self.cards_grid.winfo_children():
             child.grid_forget()
 
-        if stacked:
-            self.cards_frame.grid_columnconfigure(0, weight=1)
+        for column in range(self.MAX_COLUMNS):
+            self.cards_grid.grid_columnconfigure(column, weight=0)
 
-            for column in range(1, len(self.cards)):
-                self.cards_frame.grid_columnconfigure(column, weight=0)
+        for column in range(columns):
+            self.cards_grid.grid_columnconfigure(column, weight=1)
 
-            for index, card in enumerate(self.cards):
-                card.grid(row=index, column=0, padx=12, pady=10, sticky="ew")
-        else:
-            for index in range(len(self.cards)):
-                self.cards_frame.grid_columnconfigure(index, weight=1)
-
-            for index, card in enumerate(self.cards):
-                card.grid(row=0, column=index, padx=12, pady=10, sticky="n")
+        for index, card in enumerate(self.cards):
+            row = index // columns
+            column = index % columns
+            card.grid(row=row, column=column, padx=12, pady=10, sticky="n")
 
     def _build_footer(self):
         footer = ctk.CTkFrame(self, fg_color="transparent")
@@ -150,5 +164,5 @@ class PartialResultsView(ctk.CTkFrame):
         if event.widget is not self or not self.cards:
             return
 
-        stacked = event.width < self.STACK_BREAKPOINT
-        self._layout_cards(stacked=stacked)
+        columns = self._resolve_columns(event.width)
+        self._layout_cards(columns)
