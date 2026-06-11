@@ -202,6 +202,15 @@ class Application(ctk.CTk):
         self.show_partial_results()
 
     def handle_finish_session(self):
+        confirmed = messagebox.askyesno(
+            "Confirmar encerramento",
+            "Deseja finalizar a votação?",
+            parent=self,
+        )
+
+        if not confirmed:
+            return
+
         winning_results = self.controller.get_winning_results()
         self._winner_payload = winning_results or None
 

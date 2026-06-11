@@ -48,8 +48,14 @@ A janela **"Descubra sua viagem dos sonhos"** será aberta.
 1. **Boas-vindas** — informe o nome da sessão de votação.
 2. **Perguntas** — responda duas perguntas sobre estilo de viagem e companhia.
 3. **Destinos** — escolha o destino preferido entre as opções sugeridas.
-4. **Resultados parciais** — veja o ranking atual e vote novamente ou encerre a sessão.
+4. **Resultados parciais** — veja o ranking atual, adicione outro voto ou use o botão destacado de finalizar votação.
 5. **Vencedor** — exibe o destino mais votado ao final da sessão ou, em caso de empate, apenas os destinos empatados.
+
+## Comportamentos da interface
+
+- O botão **"Finalizar votação"** usa uma cor diferente dos botões de navegação para evitar confusão com a ação de **"Próximo"**.
+- Na tela de resultados parciais, o cabeçalho mantém título e ícone alinhados, os cards aparecem sem barra lateral de scroll, e os CTAs **"Adicionar voto"** e **"Finalizar votação"** ficam centralizados e empilhados com mais respiro vertical, seguindo a paleta azul/laranja e o raio padrão de botões definidos no tema.
+- Ao tentar encerrar a sessão de votação, a aplicação usa o diálogo nativo de confirmação do sistema antes de concluir a ação.
 
 ## Estrutura do projeto
 

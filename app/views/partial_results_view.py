@@ -2,7 +2,6 @@ import customtkinter as ctk
 
 from app.config import ui_assets, ui_theme
 from app.views.components.image_utils import load_ctk_image
-from app.views.components.nav_button import NavButton
 from app.views.components.result_card import ResultCard
 
 
@@ -41,22 +40,18 @@ class PartialResultsView(ctk.CTkFrame):
         header.grid(row=0, column=0, sticky="ew", pady=(40, 12))
         header.grid_columnconfigure(0, weight=1)
 
-        title_row = ctk.CTkFrame(header, fg_color="transparent")
-        title_row.grid(row=0, column=0)
-
         success_icon = load_ctk_image(ui_assets.ICON_SUCCESS, (40, 40))
 
-        if success_icon is not None:
-            icon_label = ctk.CTkLabel(title_row, image=success_icon, text="")
-            icon_label.pack(side="right", padx=(12, 0))
-
         title = ctk.CTkLabel(
-            title_row,
+            header,
             text="Voto registrado!",
             font=ui_theme.FONT_TITLE,
             text_color=ui_theme.TEXT_PRIMARY,
+            image=success_icon,
+            compound="right",
+            padx=0,
         )
-        title.pack(side="left")
+        title.grid(row=0, column=0)
 
         subtitle = ctk.CTkLabel(
             header,
@@ -67,7 +62,7 @@ class PartialResultsView(ctk.CTkFrame):
         subtitle.grid(row=1, column=0, pady=(8, 0))
 
     def _build_cards(self):
-        self.cards_frame = ctk.CTkScrollableFrame(self, fg_color="transparent")
+        self.cards_frame = ctk.CTkFrame(self, fg_color="transparent")
         self.cards_frame.grid(row=1, column=0, sticky="nsew", padx=30, pady=(24, 0))
         self.cards_frame.grid_columnconfigure(0, weight=1)
 
@@ -133,32 +128,44 @@ class PartialResultsView(ctk.CTkFrame):
         footer = ctk.CTkFrame(self, fg_color="transparent")
         footer.grid(row=3, column=0, sticky="ew", padx=30, pady=24)
         footer.grid_columnconfigure(0, weight=1)
-        footer.grid_columnconfigure(1, weight=1)
-        footer.grid_columnconfigure(2, weight=1)
 
-        vote_again_button = NavButton(
+        vote_again_button = ctk.CTkButton(
             footer,
-            text="Votar novamente",
+            text="Adicionar voto",
             command=self.on_vote_again,
+            fg_color=ui_theme.PRIMARY_BUTTON,
+            hover_color=ui_theme.PRIMARY_BUTTON_HOVER,
+            text_color="#FFFFFF",
+            font=ui_theme.FONT_BUTTON,
+            corner_radius=ui_theme.BUTTON_RADIUS,
+            height=50,
+            width=220,
+            border_width=0,
         )
-        vote_again_button.configure(width=180)
-        vote_again_button.grid(row=0, column=0, sticky="w")
+        vote_again_button.grid(row=0, column=0, pady=(0, 22))
+
+        finish_button = ctk.CTkButton(
+            footer,
+            text="Finalizar votação",
+            command=self.on_finish,
+            fg_color=ui_theme.FINISH_BUTTON,
+            hover_color=ui_theme.FINISH_BUTTON_HOVER,
+            text_color="#FFFFFF",
+            font=ui_theme.FONT_BUTTON,
+            corner_radius=ui_theme.BUTTON_RADIUS,
+            height=50,
+            width=220,
+            border_width=0,
+        )
+        finish_button.grid(row=1, column=0, pady=(0, 34))
 
         thanks_text = ctk.CTkLabel(
             footer,
             text="Obrigado pelo seu voto!",
-            font=ui_theme.FONT_BUTTON,
+            font=ui_theme.FONT_BODY_BOLD,
             text_color=ui_theme.TEXT_SECONDARY,
         )
-        thanks_text.grid(row=0, column=1, padx=12, sticky="ns")
-
-        finish_button = NavButton(
-            footer,
-            text="Finalizar votação",
-            command=self.on_finish,
-        )
-        finish_button.configure(width=180)
-        finish_button.grid(row=0, column=2, sticky="e")
+        thanks_text.grid(row=2, column=0)
 
     def _on_resize(self, event):
         if event.widget is not self or not self.cards:
