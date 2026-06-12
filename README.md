@@ -1,6 +1,6 @@
 # Descubra sua viagem dos sonhos
 
-Aplicação desktop em Python com interface gráfica (CustomTkinter) para votação de destinos de viagem. Os participantes respondem a um questionário, escolhem entre destinos sugeridos e os votos são registrados em sessões salvas em arquivos CSV.
+Aplicação desktop em Python com interface gráfica (CustomTkinter) para votação de destinos de viagem. Os participantes respondem a um questionário, escolhem entre destinos sugeridos e os votos são registrados em sessões salvas em arquivos CSV. O Projeto segue as características definidas no protótipo disponível no link https://www.figma.com/design/QlvY26werVWmdhySIlzGok/Sem-título?node-id=0-1&t=CerwCOnkf0Y5Z1OZ-1.
 
 ## Requisitos
 
